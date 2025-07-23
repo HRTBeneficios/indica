@@ -1,14 +1,14 @@
-import os
+Ôªøimport os
 import uuid
 import psycopg2
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-# --- ConfiguraÁ„o Inicial ---
+# --- Configura√ß√£o Inicial ---
 app = Flask(__name__)
 
-# --- ConfiguraÁ„o de CORS EspecÌfica ---
-# Define que apenas o seu subdomÌnio pode fazer requisiÁıes para a API.
+# --- Configura√ß√£o de CORS Espec√≠fica ---
+# Define que apenas o seu subdom√≠nio pode fazer requisi√ß√µes para a API.
 cors = CORS(app, resources={
     r"/*": {
         "origins": "https://indica.hrtbeneficios.com.br"
@@ -16,14 +16,14 @@ cors = CORS(app, resources={
 })
 
 def get_db_connection():
-    """Cria uma conex„o com o banco de dados PostgreSQL usando a URL do ambiente."""
+    """Cria uma conex√£o com o banco de dados PostgreSQL usando a URL do ambiente."""
     conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
     return conn
 
 def init_db():
     """
-    Cria as tabelas do banco de dados PostgreSQL se elas n„o existirem.
-    A sintaxe SQL È ajustada para PostgreSQL (ex: SERIAL PRIMARY KEY).
+    Cria as tabelas do banco de dados PostgreSQL se elas n√£o existirem.
+    A sintaxe SQL √© ajustada para PostgreSQL (ex: SERIAL PRIMARY KEY).
     """
     conn = get_db_connection()
     cur = conn.cursor()
@@ -52,7 +52,7 @@ def init_db():
     conn.close()
 
 # --- Endpoints da API (ajustados para PostgreSQL) ---
-# A principal mudanÁa È o uso de '%s' como placeholder nas queries SQL.
+# A principal mudan√ßa √© o uso de '%s' como placeholder nas queries SQL.
 
 @app.route('/clientes', methods=['POST'])
 def criar_cliente():
@@ -83,7 +83,7 @@ def criar_cliente():
         conn.commit()
         return jsonify({'id': novo_cliente_id, 'nome': dados['nome'], 'desconto_aplicado': f"{desconto_inicial*100}%"}), 201
     except psycopg2.IntegrityError:
-        return jsonify({'erro': 'Email j· cadastrado'}), 400
+        return jsonify({'erro': 'Email j√° cadastrado'}), 400
     finally:
         cur.close()
         conn.close()
@@ -116,7 +116,7 @@ def confirmar_pagamento():
     if not indicacao:
         cur.close()
         conn.close()
-        return jsonify({'erro': 'Nenhuma indicaÁ„o pendente encontrada para este cliente'}), 404
+        return jsonify({'erro': 'Nenhuma indica√ß√£o pendente encontrada para este cliente'}), 404
 
     indicacao_id, id_indicador = indicacao[0], indicacao[1]
     
@@ -140,7 +140,7 @@ def faturar_cliente():
     if not cliente:
         cur.close()
         conn.close()
-        return jsonify({'erro': 'Cliente n„o encontrado'}), 404
+        return jsonify({'erro': 'Cliente n√£o encontrado'}), 404
 
     valor_final = cliente['valor_mensalidade'] * (1 - cliente['desconto_proxima_fatura'])
     valor_final = max(0, valor_final)
@@ -148,7 +148,7 @@ def faturar_cliente():
     cur.execute('UPDATE clientes SET desconto_proxima_fatura = 0 WHERE id = %s', (id_cliente,))
     conn.commit()
     
-    # ... (restante da lÛgica igual)
+    # ... (restante da l√≥gica igual)
     
     cur.close()
     conn.close()
@@ -158,7 +158,7 @@ def faturar_cliente():
         # ... (restante do json igual)
     }), 200
 
-# --- InicializaÁ„o ---
-# Esta parte È executada apenas uma vez quando o serviÁo na Render È iniciado pela primeira vez.
+# --- Inicializa√ß√£o ---
+# Esta parte √© executada apenas uma vez quando o servi√ßo na Render √© iniciado pela primeira vez.
 with app.app_context():
     init_db()
